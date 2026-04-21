@@ -77,7 +77,7 @@ Receiving a reward now is better than receiving the same reward later (like mone
 
 The **discounted return** from time step $t$ is:
 
-$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \gamma^3 r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^k \, r_{t+k}$$
+$$G_t = r_t + \gamma r_{t+1} + \gamma^{2} r_{t+2} + \gamma^{3} r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^{k} \, r_{t+k}$$
 
 This is the quantity the agent ultimately tries to maximise.
 
@@ -89,25 +89,25 @@ The agent needs a way to judge how good a situation is. **Value functions** prov
 
 ### State Value $V(s)$
 
-The **state value** $V^\pi(s)$ is the expected discounted return starting from state $s$ and following policy $\pi$ thereafter:
+The **state value** $V^{\pi}(s)$ is the expected discounted return starting from state $s$ and following policy $\pi$ thereafter:
 
-$$V^\pi(s) = \mathbb{E}_\pi \!\left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \!\left[ r_t + \gamma \, V^\pi(s_{t+1}) \mid S_t = s \right]$$
+$$V^{\pi}(s) = \mathbb{E}_\pi \!\left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \!\left[ r_t + \gamma \, V^{\pi}(s_{t+1}) \mid S_t = s \right]$$
 
 The second form is the **Bellman equation**: the value of a state equals the immediate reward plus the discounted value of the next state. This recursive relationship is the key insight that makes RL algorithms tractable.
 
 ### Action Value $Q(s, a)$
 
-The **action-value function** $Q^\pi(s, a)$ answers a more specific question: *how good is it to take action $a$ in state $s$, and then follow policy $\pi$?*
+The **action-value function** $Q^{\pi}(s, a)$ answers a more specific question: *how good is it to take action $a$ in state $s$, and then follow policy $\pi$?*
 
-$$Q^\pi(s, a) = \mathbb{E}_\pi \!\left[ r + \gamma \max_{a'} Q^\pi(s', a') \right]$$
+$$Q^{\pi}(s, a) = \mathbb{E}_\pi \!\left[ r + \gamma \max_{a'} Q^{\pi}(s', a') \right]$$
 
 $Q$-values are what our algorithm actually learns, because choosing the best action from any state is trivial once you have them: just pick $\arg\max_a Q(s, a)$.
 
 ### Optimal $Q$-values
 
-The **optimal** $Q$-function $Q^*(s, a)$ satisfies the **Bellman optimality equation**:
+The **optimal** $Q$-function $Q^{*}(s, a)$ satisfies the **Bellman optimality equation**:
 
-$$Q^*(s, a) = \mathbb{E} \!\left[ r + \gamma \max_{a'} Q^*(s', a') \right]$$
+$$Q^{*}(s, a) = \mathbb{E} \!\left[ r + \gamma \max_{a'} Q^{*}(s', a') \right]$$
 
 This says: the optimal value of taking action $a$ in state $s$ equals the immediate reward plus the discounted value of acting optimally from the next state onward. The Q-learning algorithm is essentially an iterative method to solve this equation.
 
@@ -115,7 +115,7 @@ This says: the optimal value of taking action $a$ in state $s$ equals the immedi
 
 ## 4. Q-Learning
 
-Q-learning (Watkins, 1989) learns $Q^*$ directly, without needing a model of the environment's transition probabilities. It is an **off-policy**, **model-free**, **temporal-difference** algorithm.
+Q-learning (Watkins, 1989) learns $Q^{*}$ directly, without needing a model of the environment's transition probabilities. It is an **off-policy**, **model-free**, **temporal-difference** algorithm.
 
 ### The Update Rule
 
@@ -134,7 +134,7 @@ Breaking this down intuitively:
 - **TD error** — the gap between the two; if positive, we underestimated; if negative, we overestimated
 - $\alpha$ — how aggressively to close that gap (small $\alpha$ = slow but stable; large $\alpha$ = fast but noisy)
 
-After enough updates across enough episodes, $Q(s, a)$ converges to $Q^*(s, a)$ — provided every $(s, a)$ pair is visited sufficiently often.
+After enough updates across enough episodes, $Q(s, a)$ converges to $Q^{*}(s, a)$ — provided every $(s, a)$ pair is visited sufficiently often.
 
 ### Tabular Q-Learning
 
