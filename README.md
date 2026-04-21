@@ -91,7 +91,7 @@ The agent needs a way to judge how good a situation is. **Value functions** prov
 
 The **state value** $V^{\pi}(s)$ is the expected discounted return starting from state $s$ and following policy $\pi$ thereafter:
 
-$$V^{\pi}(s) = \mathbb{E}_\pi \!\left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \!\left[ r_t + \gamma \, V^{\pi}(s_{t+1}) \mid S_t = s \right]$$
+$$V^{\pi}(s) = \mathbb{E}_\pi \left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \left[ r_t + \gamma \, V^{\pi}(s_{t+1}) \mid S_t = s \right]$$
 
 The second form is the **Bellman equation**: the value of a state equals the immediate reward plus the discounted value of the next state. This recursive relationship is the key insight that makes RL algorithms tractable.
 
@@ -99,7 +99,7 @@ The second form is the **Bellman equation**: the value of a state equals the imm
 
 The **action-value function** $Q^{\pi}(s, a)$ answers a more specific question: *how good is it to take action $a$ in state $s$, and then follow policy $\pi$?*
 
-$$Q^{\pi}(s, a) = \mathbb{E}_\pi \!\left[ r + \gamma \max_{a^{\prime}} Q^{\pi}(s^{\prime}, a^{\prime}) \right]$$
+$$Q^{\pi}(s, a) = \mathbb{E}_\pi \left[ r + \gamma \max_{a^{\prime}} Q^{\pi}(s^{\prime}, a^{\prime}) \right]$$
 
 $Q$-values are what our algorithm actually learns, because choosing the best action from any state is trivial once you have them: just pick $\arg\max_a Q(s, a)$.
 
@@ -108,7 +108,7 @@ $Q$-values are what our algorithm actually learns, because choosing the best act
 The **optimal** $Q$-function $Q^{*}(s, a)$ satisfies the **Bellman optimality equation**:
 
 $$
-Q*(s, a) = \mathbb{E}[r + \gamma \max_{a'} Q*(s', a')]
+$$Q^{\*}(s, a) = \mathbb{E} \left[ r + \gamma \max_{a^{\prime}} Q^{\*}(s^{\prime}, a^{\prime}) \right]$$
 $$
 
 This says: the optimal value of taking action $a$ in state $s$ equals the immediate reward plus the discounted value of acting optimally from the next state onward. The Q-learning algorithm is essentially an iterative method to solve this equation.
@@ -163,7 +163,7 @@ $$\pi(s) = \begin{cases} \text{random action} & \text{with probability } \vareps
 
 Early in training, the agent knows nothing, so it should explore heavily ($\varepsilon \approx 1$). As it accumulates experience, it should exploit more ($\varepsilon \to \varepsilon_{\min}$). We achieve this by multiplying $\varepsilon$ by a decay factor after every episode:
 
-$$\varepsilon \;\leftarrow\; \max\!\left(\varepsilon_{\min},\; \varepsilon \cdot \varepsilon_{\text{decay}}\right)$$
+$$\varepsilon \;\leftarrow\; \max\left(\varepsilon_{\min},\; \varepsilon \cdot \varepsilon_{\text{decay}}\right)$$
 
 In our implementation: $\varepsilon$ starts at $1.0$, decays by $\times 0.995$ each episode, and floors at $0.05$ — ensuring the agent never completely stops exploring.
 
