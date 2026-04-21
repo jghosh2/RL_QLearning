@@ -57,8 +57,8 @@ RL problems are formalised as a **Markov Decision Process (MDP)**, defined by th
 |---|---|---|
 | $\mathcal{S}$ | State space | All possible situations |
 | $\mathcal{A}$ | Action space | All possible moves |
-| $P(s' \mid s, a)$ | Transition probability | How likely the environment moves to $s'$ after action $a$ in state $s$ |
-| $R(s, a, s')$ | Reward function | The immediate signal received |
+| $P(s^{\prime} \mid s, a)$ | Transition probability | How likely the environment moves to $s^{\prime}$ after action $a$ in state $s$ |
+| $R(s, a, s^{\prime})$ | Reward function | The immediate signal received |
 | $\gamma$ | Discount factor | How much future rewards are worth relative to immediate ones |
 
 ### The Markov Property
@@ -99,7 +99,7 @@ The second form is the **Bellman equation**: the value of a state equals the imm
 
 The **action-value function** $Q^{\pi}(s, a)$ answers a more specific question: *how good is it to take action $a$ in state $s$, and then follow policy $\pi$?*
 
-$$Q^{\pi}(s, a) = \mathbb{E}_\pi \!\left[ r + \gamma \max_{a'} Q^{\pi}(s', a') \right]$$
+$$Q^{\pi}(s, a) = \mathbb{E}_\pi \!\left[ r + \gamma \max_{a^{\prime}} Q^{\pi}(s^{\prime}, a^{\prime}) \right]$$
 
 $Q$-values are what our algorithm actually learns, because choosing the best action from any state is trivial once you have them: just pick $\arg\max_a Q(s, a)$.
 
@@ -107,7 +107,7 @@ $Q$-values are what our algorithm actually learns, because choosing the best act
 
 The **optimal** $Q$-function $Q^{*}(s, a)$ satisfies the **Bellman optimality equation**:
 
-$$Q^{*}(s, a) = \mathbb{E} \!\left[ r + \gamma \max_{a'} Q^{*}(s', a') \right]$$
+$$Q^{*}(s, a) = \mathbb{E} \!\left[ r + \gamma \max_{a^{\prime}} Q^{*}(s^{\prime}, a^{\prime}) \right]$$
 
 This says: the optimal value of taking action $a$ in state $s$ equals the immediate reward plus the discounted value of acting optimally from the next state onward. The Q-learning algorithm is essentially an iterative method to solve this equation.
 
@@ -121,16 +121,16 @@ Q-learning (Watkins, 1989) learns $Q^{*}$ directly, without needing a model of t
 
 Each time the agent takes an action, it receives a training signal. First, a **TD target** is constructed from the observed reward and the current best estimate of the future:
 
-$$\text{TD target} = r + \gamma \max_{a'} Q(s', a')$$
+$$\text{TD target} = r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})$$
 
 The current $Q$-value is then nudged toward this target by a fraction $\alpha$ (the learning rate):
 
-$$Q(s, a) \;\leftarrow\; Q(s, a) + \alpha \underbrace{\Big[ \underbrace{r + \gamma \max_{a'} Q(s', a')}_{\text{TD target}} \;-\; Q(s, a) \Big]}_{\text{TD error}}$$
+$$Q(s, a) \;\leftarrow\; Q(s, a) + \alpha \underbrace{\Big[ \underbrace{r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})}_{\text{TD target}} \;-\; Q(s, a) \Big]}_{\text{TD error}}$$
 
 Breaking this down intuitively:
 
 - $Q(s, a)$ — our current estimate of how good this (state, action) pair is
-- $r + \gamma \max_{a'} Q(s', a')$ — a *better* estimate, using the actual reward just observed plus our best guess about the future
+- $r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})$ — a *better* estimate, using the actual reward just observed plus our best guess about the future
 - **TD error** — the gap between the two; if positive, we underestimated; if negative, we overestimated
 - $\alpha$ — how aggressively to close that gap (small $\alpha$ = slow but stable; large $\alpha$ = fast but noisy)
 
@@ -250,7 +250,7 @@ class Maze:
 
 The `converter=np.array` on `grid` means you can pass a plain Python list and it is automatically converted to a NumPy array on construction — no manual cast needed.
 
-Because the transition is **deterministic**, $P(s' \mid s, a)$ is always $0$ or $1$. This makes the maze a simple MDP, appropriate for tabular Q-learning.
+Because the transition is **deterministic**, $P(s^{\prime} \mid s, a)$ is always $0$ or $1$. This makes the maze a simple MDP, appropriate for tabular Q-learning.
 
 ---
 
@@ -279,8 +279,8 @@ self.q_table[state][action] += self.alpha * td_error
 ```
 
 Line by line:
-1. If the episode ended (`done=True`) there is no future — $\max_{a'} Q(s', a') = 0$. Otherwise take the max $Q$-value of the next state.
-2. Construct the TD target: $r + \gamma \max_{a'} Q(s', a')$.
+1. If the episode ended (`done=True`) there is no future — $\max_{a^{\prime}} Q(s^{\prime}, a^{\prime}) = 0$. Otherwise take the max $Q$-value of the next state.
+2. Construct the TD target: $r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})$.
 3. Compute the TD error: how wrong our current estimate was.
 4. Nudge $Q$ toward the target by $\alpha \times \text{TD error}$.
 
