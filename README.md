@@ -108,7 +108,7 @@ $Q$-values are what our algorithm actually learns, because choosing the best act
 The **optimal** $Q$-function $Q^{*}(s, a)$ satisfies the **Bellman optimality equation**:
 
 $$
-Q^*(s, a) = \mathbb{E}[r + \gamma \max_{a'} Q^*(s', a')]
+Q^{*}(s, a) = \mathbb{E}[r + \gamma \max_{a'} Q^{*}(s', a')]
 $$
 
 This says: the optimal value of taking action $a$ in state $s$ equals the immediate reward plus the discounted value of acting optimally from the next state onward. The Q-learning algorithm is essentially an iterative method to solve this equation.
