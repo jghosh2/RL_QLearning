@@ -125,7 +125,7 @@ $$\text{TD target} = r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})$$
 
 The current $Q$-value is then nudged toward this target by a fraction $\alpha$ (the learning rate):
 
-$$Q(s, a) \;\leftarrow\; Q(s, a) + \alpha \underbrace{\Big[ \underbrace{r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})}_{\text{TD target}} \;-\; Q(s, a) \Big]}_{\text{TD error}}$$
+$$Q(s, a)  \leftarrow  Q(s, a) + \alpha \underbrace{\Big[ \underbrace{r + \gamma \max_{a^{\prime}} Q(s^{\prime}, a^{\prime})}_{\text{TD target}}  -  Q(s, a) \Big]}_{\text{TD error}}$$
 
 Breaking this down intuitively:
 
@@ -161,7 +161,7 @@ $$\pi(s) = \begin{cases} \text{random action} & \text{with probability } \vareps
 
 Early in training, the agent knows nothing, so it should explore heavily ($\varepsilon \approx 1$). As it accumulates experience, it should exploit more ($\varepsilon \to \varepsilon_{\min}$). We achieve this by multiplying $\varepsilon$ by a decay factor after every episode:
 
-$$\varepsilon \;\leftarrow\; \max\left(\varepsilon_{\min},\; \varepsilon \cdot \varepsilon_{\text{decay}}\right)$$
+$$\varepsilon  \leftarrow  \max\left(\varepsilon_{\min},  \varepsilon \cdot \varepsilon_{\text{decay}}\right)$$
 
 In our implementation: $\varepsilon$ starts at $1.0$, decays by $\times 0.995$ each episode, and floors at $0.05$ — ensuring the agent never completely stops exploring.
 
