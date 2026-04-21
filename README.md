@@ -51,15 +51,15 @@ The agent's goal is to discover a **policy** (a mapping from states to actions) 
 
 ## 2. The Markov Decision Process
 
-RL problems are formalised as a **Markov Decision Process (MDP)**, defined by the tuple **(S, A, P, R, γ)**.
+RL problems are formalised as a **Markov Decision Process (MDP)**, defined by the tuple $(\mathcal{S},\, \mathcal{A},\, P,\, R,\, \gamma)$.
 
 | Symbol | Name | Meaning |
 |---|---|---|
-| **S** | State space | All possible situations |
-| **A** | Action space | All possible moves |
-| **P(s′ \| s, a)** | Transition probability | How likely the environment moves to state s′ after action a in state s |
-| **R(s, a, s′)** | Reward function | The immediate signal received |
-| **γ** | Discount factor | How much future rewards are worth relative to immediate ones |
+| $\mathcal{S}$ | State space | All possible situations |
+| $\mathcal{A}$ | Action space | All possible moves |
+| $P(s' \mid s, a)$ | Transition probability | How likely the environment moves to $s'$ after action $a$ in state $s$ |
+| $R(s, a, s')$ | Reward function | The immediate signal received |
+| $\gamma$ | Discount factor | How much future rewards are worth relative to immediate ones |
 
 ### The Markov Property
 
@@ -67,20 +67,17 @@ The "Markov" in MDP means: **the future depends only on the present state, not o
 
 In our maze, this holds perfectly. The agent's next position depends only on its current cell and chosen direction, not on the path it took to reach that cell.
 
-### The Discount Factor γ
+### The Discount Factor $\gamma$
 
-Receiving a reward now is better than receiving the same reward later (like money in a bank). The discount factor γ ∈ [0, 1) captures this:
+Receiving a reward now is better than receiving the same reward later (like money in a bank). The discount factor $\gamma \in [0, 1)$ captures this:
 
-- γ = 0 → agent is completely short-sighted; only cares about immediate reward
-- γ = 1 → agent weights all future rewards equally (can be unstable in practice)
-- γ = 0.99 → agent strongly values future rewards but slightly prefers sooner ones
+- $\gamma = 0$ → agent is completely short-sighted; only cares about immediate reward
+- $\gamma \to 1$ → agent weights all future rewards equally (can be unstable in practice)
+- $\gamma = 0.99$ → agent strongly values future rewards but slightly prefers sooner ones
 
-The **discounted return** from time step *t* is:
+The **discounted return** from time step $t$ is:
 
-```
-G_t = r_t + γ·r_{t+1} + γ²·r_{t+2} + γ³·r_{t+3} + …
-    = Σ_{k=0}^{∞}  γᵏ · r_{t+k}
-```
+$$G_t = r_t + \gamma r_{t+1} + \gamma^2 r_{t+2} + \gamma^3 r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^k \, r_{t+k}$$
 
 This is the quantity the agent ultimately tries to maximise.
 
@@ -90,74 +87,58 @@ This is the quantity the agent ultimately tries to maximise.
 
 The agent needs a way to judge how good a situation is. **Value functions** provide this.
 
-### State Value V(s)
+### State Value $V(s)$
 
-The **state value** V(s) is the expected discounted return starting from state *s* and following policy π thereafter:
+The **state value** $V^\pi(s)$ is the expected discounted return starting from state $s$ and following policy $\pi$ thereafter:
 
-```
-V^π(s) = E_π [ G_t | S_t = s ]
-        = E_π [ r_t + γ·V^π(s_{t+1}) | S_t = s ]
-```
+$$V^\pi(s) = \mathbb{E}_\pi \!\left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \!\left[ r_t + \gamma \, V^\pi(s_{t+1}) \mid S_t = s \right]$$
 
-The second line is the **Bellman equation**: the value of a state equals the immediate reward plus the discounted value of the next state. This recursive relationship is the key insight that makes RL algorithms tractable.
+The second form is the **Bellman equation**: the value of a state equals the immediate reward plus the discounted value of the next state. This recursive relationship is the key insight that makes RL algorithms tractable.
 
-### Action Value Q(s, a)
+### Action Value $Q(s, a)$
 
-The **action-value function** Q(s, a) answers a more specific question: *how good is it to take action a in state s, and then follow policy π?*
+The **action-value function** $Q^\pi(s, a)$ answers a more specific question: *how good is it to take action $a$ in state $s$, and then follow policy $\pi$?*
 
-```
-Q^π(s, a) = E_π [ r + γ · max_{a'} Q^π(s', a') ]
-```
+$$Q^\pi(s, a) = \mathbb{E}_\pi \!\left[ r + \gamma \max_{a'} Q^\pi(s', a') \right]$$
 
-Q-values are what our algorithm actually learns, because choosing the best action from any state is trivial once you have them: just pick `argmax_a Q(s, a)`.
+$Q$-values are what our algorithm actually learns, because choosing the best action from any state is trivial once you have them: just pick $\arg\max_a Q(s, a)$.
 
-### Optimal Q-values
+### Optimal $Q$-values
 
-The **optimal** Q-function Q*(s, a) satisfies the **Bellman optimality equation**:
+The **optimal** $Q$-function $Q^*(s, a)$ satisfies the **Bellman optimality equation**:
 
-```
-Q*(s, a) = E [ r + γ · max_{a'} Q*(s', a') ]
-```
+$$Q^*(s, a) = \mathbb{E} \!\left[ r + \gamma \max_{a'} Q^*(s', a') \right]$$
 
-This says: the optimal value of taking action *a* in state *s* equals the immediate reward plus the discounted value of acting optimally from the next state onward. The Q-learning algorithm is essentially an iterative method to solve this equation.
+This says: the optimal value of taking action $a$ in state $s$ equals the immediate reward plus the discounted value of acting optimally from the next state onward. The Q-learning algorithm is essentially an iterative method to solve this equation.
 
 ---
 
 ## 4. Q-Learning
 
-Q-learning (Watkins, 1989) learns Q* directly, without needing a model of the environment's transition probabilities. It is an **off-policy**, **model-free**, **temporal-difference** algorithm.
+Q-learning (Watkins, 1989) learns $Q^*$ directly, without needing a model of the environment's transition probabilities. It is an **off-policy**, **model-free**, **temporal-difference** algorithm.
 
 ### The Update Rule
 
-Each time the agent takes an action, it gets a training signal. The update is:
+Each time the agent takes an action, it receives a training signal. First, a **TD target** is constructed from the observed reward and the current best estimate of the future:
 
-```
-Q(s, a)  ←  Q(s, a)  +  α · [ TD_target  −  Q(s, a) ]
-                                └──────────────────────┘
-                                      TD error
-```
+$$\text{TD target} = r + \gamma \max_{a'} Q(s', a')$$
 
-where the **TD (temporal difference) target** is:
+The current $Q$-value is then nudged toward this target by a fraction $\alpha$ (the learning rate):
 
-```
-TD_target  =  r  +  γ · max_{a'} Q(s', a')
-              ▲       ▲
-          immediate  discounted
-           reward    best future value
-```
+$$Q(s, a) \;\leftarrow\; Q(s, a) + \alpha \underbrace{\Big[ \underbrace{r + \gamma \max_{a'} Q(s', a')}_{\text{TD target}} \;-\; Q(s, a) \Big]}_{\text{TD error}}$$
 
 Breaking this down intuitively:
 
-- **`Q(s, a)`** — our current estimate of how good this (state, action) pair is
-- **`r + γ · max Q(s', ·)`** — a *better* estimate, using the actual reward we just saw plus our best guess about the future
-- **`TD error`** — the gap between the two; if positive, we underestimated and should increase Q; if negative, we overestimated and should decrease it
-- **`α` (learning rate)** — how aggressively to close that gap (small α = slow but stable; large α = fast but noisy)
+- $Q(s, a)$ — our current estimate of how good this (state, action) pair is
+- $r + \gamma \max_{a'} Q(s', a')$ — a *better* estimate, using the actual reward just observed plus our best guess about the future
+- **TD error** — the gap between the two; if positive, we underestimated; if negative, we overestimated
+- $\alpha$ — how aggressively to close that gap (small $\alpha$ = slow but stable; large $\alpha$ = fast but noisy)
 
-After enough updates across enough episodes, Q(s, a) converges to Q*(s, a), the true optimal action values — provided every (state, action) pair is visited sufficiently often.
+After enough updates across enough episodes, $Q(s, a)$ converges to $Q^*(s, a)$ — provided every $(s, a)$ pair is visited sufficiently often.
 
 ### Tabular Q-Learning
 
-In the simplest form — used here — Q is stored as a **dictionary (table)** mapping every (state, action) pair to a scalar value. This works when the state space is small enough to enumerate, as in our 5×5 maze (25 cells × 4 actions = 100 entries).
+In the simplest form — used here — $Q$ is stored as a **dictionary (table)** mapping every $(s, a)$ pair to a scalar. This works when the state space is small enough to enumerate, as in our $5 \times 5$ maze ($25 \text{ cells} \times 4 \text{ actions} = 100$ entries).
 
 For larger problems (images, continuous spaces), the table is replaced with a neural network — this is **Deep Q-Learning (DQN)** — but the update rule stays the same.
 
@@ -170,24 +151,19 @@ A fundamental tension in RL: should the agent try new actions to discover better
 - Pure exploitation → gets stuck in suboptimal habits early in training
 - Pure exploration → never benefits from what it has learned
 
-### ε-Greedy Strategy
+### $\varepsilon$-Greedy Strategy
 
-The simplest solution is **ε-greedy**: with probability ε, pick a random action (explore); otherwise pick the action with the highest Q-value (exploit).
+The simplest solution is **$\varepsilon$-greedy**: with probability $\varepsilon$, pick a random action; otherwise pick the action with the highest $Q$-value.
 
-```
-action = { random action          with probability ε
-         { argmax_a Q(s, a)       with probability 1 − ε
-```
+$$\pi(s) = \begin{cases} \text{random action} & \text{with probability } \varepsilon \\ \arg\max_a\, Q(s, a) & \text{with probability } 1 - \varepsilon \end{cases}$$
 
 ### Epsilon Decay
 
-Early in training, the agent knows nothing, so it should explore heavily (ε ≈ 1). As it accumulates experience, it should exploit more (ε → ε_min). We achieve this by multiplying ε by a decay factor after every episode:
+Early in training, the agent knows nothing, so it should explore heavily ($\varepsilon \approx 1$). As it accumulates experience, it should exploit more ($\varepsilon \to \varepsilon_{\min}$). We achieve this by multiplying $\varepsilon$ by a decay factor after every episode:
 
-```
-ε  ←  max(ε_min,  ε · ε_decay)
-```
+$$\varepsilon \;\leftarrow\; \max\!\left(\varepsilon_{\min},\; \varepsilon \cdot \varepsilon_{\text{decay}}\right)$$
 
-In our implementation: ε starts at 1.0, decays by ×0.995 each episode, and floors at 0.05 — ensuring the agent never completely stops exploring.
+In our implementation: $\varepsilon$ starts at $1.0$, decays by $\times 0.995$ each episode, and floors at $0.05$ — ensuring the agent never completely stops exploring.
 
 ---
 
@@ -202,7 +178,7 @@ G   goal position
 1   wall (impassable)
 ```
 
-Example 5×5 maze:
+Example $5 \times 5$ maze:
 
 ```
  S  · ███      
@@ -216,13 +192,13 @@ Example 5×5 maze:
 
 | MDP Concept | Maze Implementation |
 |---|---|
-| **State s** | Current cell `(row, col)` |
-| **Actions A** | Up, Down, Left, Right (4 actions) |
-| **Transition P** | Deterministic: move succeeds unless a wall is hit, in which case the agent stays put |
-| **Reward R** | `+1.0` for reaching the goal; `-0.01` for every other step |
+| **State** $s$ | Current cell $(\text{row},\, \text{col})$ |
+| **Actions** $\mathcal{A}$ | Up, Down, Left, Right (4 actions) |
+| **Transition** $P$ | Deterministic: move succeeds unless a wall is hit, in which case the agent stays put |
+| **Reward** $R$ | $+1.0$ for reaching the goal; $-0.01$ for every other step |
 | **Terminal state** | The goal cell G |
 
-The small **step penalty of −0.01** is important: it incentivises the agent to find the *shortest* path rather than wandering. Without it, all paths to the goal are equally good, and the agent may meander.
+The small **step penalty of $-0.01$** is important: it incentivises the agent to find the *shortest* path rather than wandering. Without it, all paths to the goal yield equal total reward and the agent may meander.
 
 ---
 
@@ -241,7 +217,7 @@ The four modules have a clean layered dependency:
 
 ```
 MazeSolver
- ├── Maze          (environment)
+ ├── Maze           (environment)
  ├── QLearningAgent (agent)
  └── Trainer
       ├── Maze
@@ -274,7 +250,7 @@ class Maze:
 
 The `converter=np.array` on `grid` means you can pass a plain Python list and it is automatically converted to a NumPy array on construction — no manual cast needed.
 
-Because the transition is **deterministic** (no randomness in how the environment responds), P(s′ | s, a) is always 0 or 1. This makes the maze a simple MDP, appropriate for tabular Q-learning.
+Because the transition is **deterministic**, $P(s' \mid s, a)$ is always $0$ or $1$. This makes the maze a simple MDP, appropriate for tabular Q-learning.
 
 ---
 
@@ -291,7 +267,7 @@ class QLearningAgent:
     q_table: defaultdict = field(init=False)
 ```
 
-The Q-table is a `defaultdict` — any unseen state automatically gets a zero-initialised vector of length `n_actions`. This means we never need to pre-populate the table; states are added lazily as the agent encounters them.
+The $Q$-table is a `defaultdict` — any unseen state automatically gets a zero-initialised vector of length `n_actions`. States are added lazily as the agent encounters them.
 
 **`update()`** is the heart of the algorithm:
 
@@ -303,10 +279,10 @@ self.q_table[state][action] += self.alpha * td_error
 ```
 
 Line by line:
-1. If the episode just ended (`done=True`), there is no future — `best_next = 0`. Otherwise, take the maximum Q-value of the next state.
-2. Construct the TD target: immediate reward + discounted best future value.
+1. If the episode ended (`done=True`) there is no future — $\max_{a'} Q(s', a') = 0$. Otherwise take the max $Q$-value of the next state.
+2. Construct the TD target: $r + \gamma \max_{a'} Q(s', a')$.
 3. Compute the TD error: how wrong our current estimate was.
-4. Nudge Q toward the target by `α × TD_error`.
+4. Nudge $Q$ toward the target by $\alpha \times \text{TD error}$.
 
 ---
 
@@ -359,7 +335,7 @@ class MazeSolver:
 
 `__attrs_post_init__` is called automatically by attrs after the fields are set. It wires the three components together — the user only needs to provide a grid and (optionally) hyperparameters.
 
-`solve()` extracts the **greedy policy** after training: it always picks `argmax_a Q(s, a)` with no exploration. A loop-detection guard prevents an infinite loop if training was insufficient.
+`solve()` extracts the **greedy policy** after training: it always picks $\arg\max_a Q(s, a)$ with no exploration. A loop-detection guard prevents an infinite loop if training was insufficient.
 
 ---
 
@@ -369,16 +345,13 @@ Here is what happens when you call `solver.train(n_episodes=2000)`:
 
 ```
 Episode 1
-  reset → S = (0,0)
+  reset → s = (0,0)
   step 1: ε=1.0 → random action (explore)
           → new state, reward=-0.01, update Q
   step 2: ε=1.0 → random action
           ...
   (likely never reaches G in early episodes)
   ε ← ε × 0.995 = 0.995
-
-Episode 2
-  ...
 
 Episode ~200
   ε ≈ 0.37 — agent starts exploiting partial knowledge
@@ -393,7 +366,7 @@ Episode 2000
   Q-table has converged; greedy policy traces the shortest path
 ```
 
-**Why does it work?** Every time the agent reaches the goal, the `+1.0` reward flows *backwards* through time via the Bellman update. On the very step before the goal, Q(s_penultimate, a_goal) gets boosted. On the next episode, the step before *that* gets boosted because now Q(s_penultimate, ·) is higher, and so on. This **credit propagation** eventually reaches the start state.
+**Why does it work?** Every time the agent reaches the goal, the $+1.0$ reward flows *backwards* through time via the Bellman update. On the step just before the goal, $Q(s_{\text{prev}}, a_{\text{goal}})$ gets boosted. Next episode, the step before *that* gets boosted — because now $Q(s_{\text{prev}}, \cdot)$ is higher — and so on. This **credit propagation** eventually reaches the start state.
 
 ---
 
@@ -409,7 +382,7 @@ pip install numpy attrs
 
 ### Run from the notebook
 
-Open `RL_script.ipynb` in Jupyter and run all cells. The notebook defines a 5×5 maze, trains for 2000 episodes, and renders the solved path.
+Open `RL_script.ipynb` in Jupyter and run all cells. The notebook defines a $5 \times 5$ maze, trains for 2000 episodes, and renders the solved path.
 
 ### Run from a script
 
@@ -460,16 +433,16 @@ Path length: 9 steps
 
 | Parameter | Default | Effect of increasing | Effect of decreasing |
 |---|---|---|---|
-| `alpha` | 0.1 | Learns faster but noisier | Slower, more stable convergence |
-| `gamma` | 0.99 | Values long-term rewards more; needs more episodes | Shortsighted; may not find distant goals |
-| `epsilon` | 1.0 | N/A (initial value) | Starting low means less exploration early on |
-| `eps_min` | 0.05 | More random behaviour at convergence | Fully greedy at convergence (risky) |
-| `eps_decay` | 0.995 | Slower decay; more exploration overall | Faster decay; less exploration |
-| `max_steps` | 500 | Longer episodes; more updates per episode | Agent may time out before reaching goal |
-| `n_episodes` | 2000 | More training; better convergence | May not converge on harder mazes |
+| $\alpha$ | $0.1$ | Learns faster but noisier | Slower, more stable convergence |
+| $\gamma$ | $0.99$ | Values long-term rewards more; needs more episodes | Shortsighted; may not find distant goals |
+| $\varepsilon$ | $1.0$ | N/A (initial value) | Starting low means less exploration early on |
+| $\varepsilon_{\min}$ | $0.05$ | More random behaviour at convergence | Fully greedy at convergence (risky) |
+| $\varepsilon_{\text{decay}}$ | $0.995$ | Slower decay; more exploration overall | Faster decay; less exploration |
+| `max_steps` | $500$ | Longer episodes; more updates per episode | Agent may time out before reaching goal |
+| `n_episodes` | $2000$ | More training; better convergence | May not converge on harder mazes |
 
 **General advice:**
-- If the agent rarely reaches the goal → increase `n_episodes` or slow `eps_decay` (more exploration time)
-- If learning is noisy and Q-values fluctuate → decrease `alpha`
-- If the agent finds the goal but takes a long route → increase `gamma` to incentivise shorter paths
+- If the agent rarely reaches the goal → increase `n_episodes` or slow $\varepsilon_{\text{decay}}$ (more exploration time)
+- If learning is noisy and $Q$-values fluctuate → decrease $\alpha$
+- If the agent finds the goal but takes a long route → increase $\gamma$ to incentivise shorter paths
 - If the maze is larger → scale up `n_episodes` proportionally (more states need more visits)
