@@ -97,7 +97,7 @@ The second form is the **Bellman equation**: the value of a state equals the imm
 
 ### Action Value $Q(s, a)$
 
-The **action-value function** $Q^{\pi}(s, a)$ answers a more specific question: *how good is it to take action $a$ in state $s$, and then follow policy $\pi$?*
+The **action-value function** $Q^{\pi}(s, a)$ answers a more specific question: how good is it to take action $a$ in state $s$, and then follow policy $\pi$?
 
 $$Q^{\pi}(s, a) = \mathbb{E}_\pi \left[ r + \gamma \max_{a^{\prime}} Q^{\pi}(s^{\prime}, a^{\prime}) \right]$$
 
