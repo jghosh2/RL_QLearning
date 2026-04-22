@@ -51,7 +51,7 @@ The agent's goal is to discover a **policy** (a mapping from states to actions) 
 
 ## 2. The Markov Decision Process
 
-RL problems are formalised as a **Markov Decision Process (MDP)**, defined by the tuple $(\mathcal{S},\, \mathcal{A},\, P,\, R,\, \gamma)$.
+RL problems are formalised as a **Markov Decision Process (MDP)**, defined by the tuple $(\mathcal{S},  \mathcal{A},  P,  R,  \gamma)$.
 
 | Symbol | Name | Meaning |
 |---|---|---|
@@ -77,7 +77,7 @@ Receiving a reward now is better than receiving the same reward later (like mone
 
 The **discounted return** from time step $t$ is:
 
-$$G_t = r_t + \gamma r_{t+1} + \gamma^{2} r_{t+2} + \gamma^{3} r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^{k} \, r_{t+k}$$
+$$G_t = r_t + \gamma r_{t+1} + \gamma^{2} r_{t+2} + \gamma^{3} r_{t+3} + \cdots = \sum_{k=0}^{\infty} \gamma^{k}   r_{t+k}$$
 
 This is the quantity the agent ultimately tries to maximise.
 
@@ -91,7 +91,7 @@ The agent needs a way to judge how good a situation is. **Value functions** prov
 
 The **state value** $V^{\pi}(s)$ is the expected discounted return starting from state $s$ and following policy $\pi$ thereafter:
 
-$$V^{\pi}(s) = \mathbb{E}_\pi \left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \left[ r_t + \gamma \, V^{\pi}(s_{t+1}) \mid S_t = s \right]$$
+$$V^{\pi}(s) = \mathbb{E}_\pi \left[ G_t \mid S_t = s \right] = \mathbb{E}_\pi \left[ r_t + \gamma   V^{\pi}(s_{t+1}) \mid S_t = s \right]$$
 
 The second form is the **Bellman equation**: the value of a state equals the immediate reward plus the discounted value of the next state. This recursive relationship is the key insight that makes RL algorithms tractable.
 
@@ -155,7 +155,7 @@ A fundamental tension in RL: should the agent try new actions to discover better
 
 The simplest solution is **$\varepsilon$-greedy**: with probability $\varepsilon$, pick a random action; otherwise pick the action with the highest $Q$-value.
 
-$$\pi(s) = \begin{cases} \text{random action} & \text{with probability } \varepsilon \\ \arg\max_a\, Q(s, a) & \text{with probability } 1 - \varepsilon \end{cases}$$
+$$\pi(s) = \begin{cases} \text{random action} & \text{with probability } \varepsilon \\ \arg\max_a  Q(s, a) & \text{with probability } 1 - \varepsilon \end{cases}$$
 
 ### Epsilon Decay
 
@@ -192,7 +192,7 @@ Example $5 \times 5$ maze:
 
 | MDP Concept | Maze Implementation |
 |---|---|
-| **State** $s$ | Current cell $(\text{row},\, \text{col})$ |
+| **State** $s$ | Current cell $(\text{row},  \text{col})$ |
 | **Actions** $\mathcal{A}$ | Up, Down, Left, Right (4 actions) |
 | **Transition** $P$ | Deterministic: move succeeds unless a wall is hit, in which case the agent stays put |
 | **Reward** $R$ | $+1.0$ for reaching the goal; $-0.01$ for every other step |
